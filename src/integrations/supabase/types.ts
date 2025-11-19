@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      product_storage: {
+        Row: {
+          created_at: string
+          id: string
+          location_id: string
+          product_id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location_id: string
+          product_id: string
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location_id?: string
+          product_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_storage_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "warehouse_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_storage_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_variants: {
         Row: {
           created_at: string
@@ -139,6 +181,105 @@ export type Database = {
         }
         Relationships: []
       }
+      sales_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          product_id: string
+          product_name: string
+          quantity: number
+          tax_amount: number
+          tax_rate: number
+          total_amount: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          product_id: string
+          product_name: string
+          quantity: number
+          tax_amount?: number
+          tax_rate?: number
+          total_amount: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string
+          product_name?: string
+          quantity?: number
+          tax_amount?: number
+          tax_rate?: number
+          total_amount?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_orders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          discount: number | null
+          id: string
+          order_number: string
+          payment_method: string | null
+          status: string
+          subtotal: number
+          tax_amount: number
+          total_amount: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount?: number | null
+          id?: string
+          order_number: string
+          payment_method?: string | null
+          status?: string
+          subtotal: number
+          tax_amount: number
+          total_amount: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount?: number | null
+          id?: string
+          order_number?: string
+          payment_method?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          total_amount?: number
+        }
+        Relationships: []
+      }
       sales_transactions: {
         Row: {
           created_at: string
@@ -198,6 +339,39 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      warehouse_locations: {
+        Row: {
+          bin_number: string
+          capacity: number
+          created_at: string
+          current_usage: number
+          id: string
+          qr_code: string | null
+          rack_number: string
+          warehouse_name: string
+        }
+        Insert: {
+          bin_number: string
+          capacity?: number
+          created_at?: string
+          current_usage?: number
+          id?: string
+          qr_code?: string | null
+          rack_number: string
+          warehouse_name: string
+        }
+        Update: {
+          bin_number?: string
+          capacity?: number
+          created_at?: string
+          current_usage?: number
+          id?: string
+          qr_code?: string | null
+          rack_number?: string
+          warehouse_name?: string
         }
         Relationships: []
       }

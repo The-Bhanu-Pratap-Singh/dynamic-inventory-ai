@@ -9,6 +9,10 @@ import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import NewProduct from "./pages/NewProduct";
 import AIInsights from "./pages/AIInsights";
+import ProductDetail from "./pages/ProductDetail";
+import Analytics from "./pages/Analytics";
+import POS from "./pages/POS";
+import Warehouse from "./pages/Warehouse";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,7 +29,11 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/new" element={<NewProduct />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/ai-insights" element={<AIInsights />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/pos" element={<POS />} />
+          <Route path="/warehouse" element={<Warehouse />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
