@@ -144,6 +144,15 @@ const Dashboard = () => {
               <Brain className="h-4 w-4" />
               AI Insights
             </Button>
+            <Button variant="outline" onClick={() => navigate("/analytics")} size="sm">
+              Analytics
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/pos")} size="sm">
+              POS
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/warehouse")} size="sm">
+              Warehouse
+            </Button>
             <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
             </Button>
@@ -215,6 +224,7 @@ const Dashboard = () => {
               <Button
                 variant="outline"
                 className="h-24 flex-col gap-2"
+                onClick={() => navigate("/ai-insights")}
               >
                 <TrendingUp className="h-6 w-6" />
                 <span>AI Insights</span>
