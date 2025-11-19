@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, TrendingUp, AlertTriangle, DollarSign, Plus, LogOut } from "lucide-react";
+import { Package, TrendingUp, AlertTriangle, DollarSign, Plus, LogOut, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DashboardStats {
@@ -139,6 +139,10 @@ const Dashboard = () => {
             <Button onClick={() => navigate("/products/new")} className="gap-2">
               <Plus className="h-4 w-4" />
               Add Product
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/ai-insights")} className="gap-2">
+              <Brain className="h-4 w-4" />
+              AI Insights
             </Button>
             <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
