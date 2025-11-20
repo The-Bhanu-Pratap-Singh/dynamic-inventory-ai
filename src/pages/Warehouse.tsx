@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Package, Plus, QrCode, Loader2 } from "lucide-react";
+import { ArrowLeft, Package, Plus, QrCode, Loader2, ScanLine } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import QRCode from "qrcode";
+import Scanner from "@/components/Scanner";
 
 const Warehouse = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const Warehouse = () => {
     capacity: 100
   });
   const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => {
     loadLocations();
@@ -99,6 +101,26 @@ const Warehouse = () => {
     }
   };
 
+  const handleScanResult = async (code: string) => {
+    const location = locations.find(loc => 
+      `${loc.warehouse_name}-R${loc.rack_number}-B${loc.bin_number}` === code
+    );
+
+    if (location) {
+      await showQRCode(location);
+      toast({
+        title: "Location Found",
+        description: `${location.warehouse_name} - Rack ${location.rack_number} - Bin ${location.bin_number}`,
+      });
+    } else {
+      toast({
+        title: "Location Not Found",
+        description: "No warehouse location found with this code",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getUsageColor = (usage: number): "default" | "destructive" | "outline" | "secondary" => {
     if (usage >= 90) return 'destructive';
     if (usage >= 70) return 'secondary';
@@ -119,9 +141,14 @@ const Warehouse = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => setShowScanner(true)}>
+                  <ScanLine className="h-5 w-5" />
+                </Button>
+              </div>
               <div className="flex items-center gap-2">
                 <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center shadow-glow">
                   <Package className="h-5 w-5 text-primary-foreground" />
@@ -318,6 +345,12 @@ const Warehouse = () => {
           </Card>
         )}
       </main>
+
+      <Scanner 
+        isOpen={showScanner} 
+        onClose={() => setShowScanner(false)} 
+        onScan={handleScanResult} 
+      />
     </div>
   );
 };
