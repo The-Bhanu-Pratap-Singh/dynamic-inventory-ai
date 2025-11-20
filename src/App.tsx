@@ -13,6 +13,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Analytics from "./pages/Analytics";
 import POS from "./pages/POS";
 import Warehouse from "./pages/Warehouse";
+import RoleManagement from "./pages/RoleManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/pos" element={<POS />} />
           <Route path="/warehouse" element={<Warehouse />} />
+          <Route path="/roles" element={<RoleManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, TrendingUp, AlertTriangle, DollarSign, Plus, LogOut, Brain } from "lucide-react";
+import { Package, TrendingUp, AlertTriangle, DollarSign, Plus, LogOut, Brain, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DashboardStats {
@@ -24,6 +24,7 @@ const Dashboard = () => {
     profitMargin: 0,
   });
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     checkUser();
@@ -36,6 +37,14 @@ const Dashboard = () => {
       navigate("/auth");
     } else {
       setUser(session.user);
+      
+      // Check admin status
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id);
+      
+      setIsAdmin(roles?.some(r => r.role === 'admin') || false);
     }
   };
 
@@ -153,6 +162,12 @@ const Dashboard = () => {
             <Button variant="outline" onClick={() => navigate("/warehouse")} size="sm">
               Warehouse
             </Button>
+            {isAdmin && (
+              <Button variant="outline" onClick={() => navigate("/roles")} size="sm">
+                <Shield className="h-4 w-4 mr-1" />
+                Roles
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
             </Button>
