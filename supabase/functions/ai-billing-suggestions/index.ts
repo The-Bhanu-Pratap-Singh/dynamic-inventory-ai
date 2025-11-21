@@ -13,7 +13,34 @@ serve(async (req) => {
   }
 
   try {
-    const { cartItems } = await req.json();
+    const body = await req.json();
+    const cartItems = body?.cartItems;
+    
+    // Input validation
+    if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'Cart items array is required and must not be empty' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (cartItems.length > 100) {
+      return new Response(
+        JSON.stringify({ error: 'Cart items cannot exceed 100 items' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Validate each cart item has required fields
+    for (const item of cartItems) {
+      if (!item.productId || typeof item.productId !== 'string') {
+        return new Response(
+          JSON.stringify({ error: 'Each cart item must have a valid productId' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;

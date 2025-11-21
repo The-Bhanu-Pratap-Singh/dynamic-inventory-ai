@@ -11,11 +11,29 @@ serve(async (req) => {
   }
 
   try {
-    const { imageBase64 } = await req.json();
+    const body = await req.json();
+    const imageBase64 = body?.imageBase64;
     
-    if (!imageBase64) {
+    // Input validation
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
       return new Response(
-        JSON.stringify({ error: 'Image data is required' }),
+        JSON.stringify({ error: 'Image data is required and must be a base64 string' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Validate base64 format and size (5MB limit)
+    const base64Regex = /^data:image\/(png|jpg|jpeg|gif|webp);base64,/;
+    if (!base64Regex.test(imageBase64)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid image format. Must be a valid base64 image (png, jpg, jpeg, gif, or webp)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (imageBase64.length > 7000000) { // ~5MB in base64
+      return new Response(
+        JSON.stringify({ error: 'Image size exceeds 5MB limit' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

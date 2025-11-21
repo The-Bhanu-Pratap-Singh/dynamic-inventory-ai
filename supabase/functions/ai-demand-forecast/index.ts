@@ -13,7 +13,26 @@ serve(async (req) => {
   }
 
   try {
-    const { productId } = await req.json();
+    const body = await req.json();
+    const productId = body?.productId;
+    
+    // Input validation
+    if (!productId || typeof productId !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Product ID is required and must be a string' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(productId)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid product ID format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
