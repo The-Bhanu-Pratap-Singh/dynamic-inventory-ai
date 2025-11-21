@@ -28,40 +28,29 @@ const RoleManagement = () => {
       navigate("/auth");
       return;
     }
-
-    const { data: roles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id);
-
-    const isAdmin = roles?.some(r => r.role === 'admin');
-    if (!isAdmin) {
-      toast({
-        title: "Access Denied",
-        description: "You must be an admin to access this page",
-        variant: "destructive",
-      });
-      navigate("/dashboard");
-    }
   };
 
   const loadUsers = async () => {
     try {
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, full_name');
+      const { data, error } = await supabase
+        .rpc('get_users_with_roles');
 
-      if (profilesError) throw profilesError;
+      if (error) {
+        if (error.message.includes('Access denied')) {
+          toast({
+            title: "Access Denied",
+            description: "You must be an admin to access this page",
+            variant: "destructive",
+          });
+          navigate("/dashboard");
+          return;
+        }
+        throw error;
+      }
 
-      const { data: rolesData, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (rolesError) throw rolesError;
-
-      const usersWithRoles = profiles?.map(profile => ({
-        ...profile,
-        roles: rolesData?.filter(r => r.user_id === profile.id).map(r => r.role) || []
+      const usersWithRoles = data?.map(user => ({
+        ...user,
+        roles: user.roles || []
       })) || [];
 
       setUsers(usersWithRoles);
@@ -78,9 +67,11 @@ const RoleManagement = () => {
 
   const handleAddRole = async (userId: string, role: string) => {
     try {
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({ user_id: userId, role: role as any });
+      const { data, error } = await supabase
+        .rpc('assign_user_role', {
+          target_user_id: userId,
+          target_role: role as any
+        });
 
       if (error) throw error;
 
@@ -101,11 +92,11 @@ const RoleManagement = () => {
 
   const handleRemoveRole = async (userId: string, role: string) => {
     try {
-      const { error } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId)
-        .eq('role', role as any);
+      const { data, error } = await supabase
+        .rpc('remove_user_role', {
+          target_user_id: userId,
+          target_role: role as any
+        });
 
       if (error) throw error;
 
