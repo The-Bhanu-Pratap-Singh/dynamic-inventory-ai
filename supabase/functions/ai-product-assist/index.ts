@@ -12,7 +12,47 @@ serve(async (req) => {
   }
 
   try {
-    const { action, productName, category, sector, costPrice } = await req.json();
+    const body = await req.json();
+    const { action, productName, category, sector, costPrice } = body;
+    
+    // Input validation
+    if (!action || typeof action !== 'string' || !['generate_description', 'estimate_price'].includes(action)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid action. Must be generate_description or estimate_price' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (!productName || typeof productName !== 'string' || productName.length > 200) {
+      return new Response(
+        JSON.stringify({ error: 'Product name is required and must be less than 200 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (category && (typeof category !== 'string' || category.length > 100)) {
+      return new Response(
+        JSON.stringify({ error: 'Category must be less than 100 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (sector && (typeof sector !== 'string' || sector.length > 100)) {
+      return new Response(
+        JSON.stringify({ error: 'Sector must be less than 100 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (action === 'estimate_price') {
+      if (!costPrice || typeof costPrice !== 'number' || costPrice <= 0) {
+        return new Response(
+          JSON.stringify({ error: 'Valid cost price is required for price estimation' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {

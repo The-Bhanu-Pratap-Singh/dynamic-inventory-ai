@@ -22,7 +22,53 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { to, orderNumber, pdfBase64, customerName, totalAmount }: InvoiceEmailRequest = await req.json();
+    const body = await req.json();
+    const { to, orderNumber, pdfBase64, customerName, totalAmount } = body;
+    
+    // Input validation
+    if (!to || typeof to !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Email address is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(to) || to.length > 255) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid email address format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (!orderNumber || typeof orderNumber !== 'string' || orderNumber.length > 50) {
+      return new Response(
+        JSON.stringify({ error: 'Valid order number is required (max 50 characters)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (customerName && (typeof customerName !== 'string' || customerName.length > 100)) {
+      return new Response(
+        JSON.stringify({ error: 'Customer name must be less than 100 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (!pdfBase64 || typeof pdfBase64 !== 'string' || pdfBase64.length > 10000000) {
+      return new Response(
+        JSON.stringify({ error: 'Valid PDF data is required (max 10MB)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (typeof totalAmount !== 'number' || totalAmount < 0) {
+      return new Response(
+        JSON.stringify({ error: 'Valid total amount is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const emailResponse = await resend.emails.send({
       from: "DPI System <onboarding@resend.dev>",
