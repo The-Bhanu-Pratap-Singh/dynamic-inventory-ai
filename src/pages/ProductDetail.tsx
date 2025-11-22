@@ -19,7 +19,13 @@ const ProductDetail = () => {
   const [forecastLoading, setForecastLoading] = useState(false);
 
   useEffect(() => {
-    if (id) loadProduct();
+    // Prevent loading if id is not a valid UUID format or is a route keyword
+    if (id && id !== 'new' && id.length === 36) {
+      loadProduct();
+    } else if (id === 'new') {
+      // If someone navigated to /products/new, redirect to the correct route
+      navigate('/products/new');
+    }
   }, [id]);
 
   const loadProduct = async () => {
