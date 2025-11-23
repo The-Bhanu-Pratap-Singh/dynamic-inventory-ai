@@ -7,14 +7,26 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Package, Loader2, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowLeft, Package, Loader2, Sparkles, TrendingUp, Upload, X, Plus, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+type ProductVariant = {
+  id: string;
+  variant_name: string;
+  variant_value: string;
+  sku: string;
+  price_adjustment: string;
+  stock: string;
+};
 
 const NewProduct = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState<'description' | 'price' | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -32,6 +44,50 @@ const NewProduct = () => {
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Image must be less than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview("");
+  };
+
+  const addVariant = () => {
+    setVariants([...variants, {
+      id: crypto.randomUUID(),
+      variant_name: "",
+      variant_value: "",
+      sku: "",
+      price_adjustment: "0",
+      stock: "0",
+    }]);
+  };
+
+  const removeVariant = (id: string) => {
+    setVariants(variants.filter(v => v.id !== id));
+  };
+
+  const updateVariant = (id: string, field: keyof ProductVariant, value: string) => {
+    setVariants(variants.map(v => v.id === id ? { ...v, [field]: value } : v));
   };
 
   const handleAIGenerateDescription = async () => {
@@ -133,7 +189,26 @@ const NewProduct = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      const { error } = await supabase.from("products").insert({
+      let imageUrl = null;
+      
+      // Upload image if provided
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(fileName);
+        
+        imageUrl = publicUrl;
+      }
+      
+      const { data: product, error } = await supabase.from("products").insert({
         name: formData.name,
         sku: formData.sku || null,
         category: formData.category || null,
@@ -145,10 +220,29 @@ const NewProduct = () => {
         current_stock: formData.current_stock ? parseInt(formData.current_stock) : 0,
         reorder_level: formData.reorder_level ? parseInt(formData.reorder_level) : 10,
         tax_rate: formData.tax_rate ? parseFloat(formData.tax_rate) : 18,
+        image_url: imageUrl,
         created_by: user?.id || null,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      // Insert variants if any
+      if (variants.length > 0 && product) {
+        const variantsToInsert = variants.map(v => ({
+          product_id: product.id,
+          variant_name: v.variant_name,
+          variant_value: v.variant_value,
+          sku: v.sku || null,
+          price_adjustment: parseFloat(v.price_adjustment) || 0,
+          stock: parseInt(v.stock) || 0,
+        }));
+
+        const { error: variantsError } = await supabase
+          .from('product_variants')
+          .insert(variantsToInsert);
+
+        if (variantsError) throw variantsError;
+      }
 
       toast({
         title: "Success",
@@ -191,6 +285,52 @@ const NewProduct = () => {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6">
+            {/* Image Upload */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Product Image</CardTitle>
+                <CardDescription>Upload a product image (Max 5MB)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  {imagePreview ? (
+                    <div className="relative w-full h-48 rounded-lg border bg-muted overflow-hidden">
+                      <img
+                        src={imagePreview}
+                        alt="Product preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={removeImage}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted/10 hover:bg-muted/20 transition-colors">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="h-10 w-10 text-muted-foreground mb-3" />
+                        <p className="mb-2 text-sm text-muted-foreground">
+                          <span className="font-semibold">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-muted-foreground">PNG, JPG or WEBP (MAX. 5MB)</p>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Basic Information */}
             <Card>
               <CardHeader>
@@ -385,6 +525,85 @@ const NewProduct = () => {
                     />
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Product Variants */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Product Variants</CardTitle>
+                <CardDescription>Add different variants like size, color, etc.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                {variants.map((variant, index) => (
+                  <div key={variant.id} className="p-4 border rounded-lg bg-muted/10">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm font-medium">Variant {index + 1}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeVariant(variant.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="grid gap-2">
+                        <Label>Attribute Name</Label>
+                        <Input
+                          placeholder="e.g., Size, Color"
+                          value={variant.variant_name}
+                          onChange={(e) => updateVariant(variant.id, 'variant_name', e.target.value)}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>Attribute Value</Label>
+                        <Input
+                          placeholder="e.g., Large, Red"
+                          value={variant.variant_value}
+                          onChange={(e) => updateVariant(variant.id, 'variant_value', e.target.value)}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>SKU</Label>
+                        <Input
+                          placeholder="Variant SKU"
+                          value={variant.sku}
+                          onChange={(e) => updateVariant(variant.id, 'sku', e.target.value)}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>Price Adjustment (₹)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={variant.price_adjustment}
+                          onChange={(e) => updateVariant(variant.id, 'price_adjustment', e.target.value)}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>Stock</Label>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          value={variant.stock}
+                          onChange={(e) => updateVariant(variant.id, 'stock', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addVariant}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Variant
+                </Button>
               </CardContent>
             </Card>
 
