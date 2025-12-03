@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, TrendingUp, AlertTriangle, DollarSign, Plus, LogOut, Brain, Shield } from "lucide-react";
+import { Package, TrendingUp, AlertTriangle, DollarSign, Plus, LogOut, Brain, Shield, Users, Building2, BookOpen, Receipt, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DashboardStats {
@@ -243,6 +243,54 @@ const Dashboard = () => {
               >
                 <TrendingUp className="h-6 w-6" />
                 <span>AI Insights</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-24 flex-col gap-2"
+                onClick={() => navigate("/pos")}
+              >
+                <Receipt className="h-6 w-6" />
+                <span>POS / Billing</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-24 flex-col gap-2"
+                onClick={() => navigate("/customers")}
+              >
+                <Users className="h-6 w-6" />
+                <span>Customers</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-24 flex-col gap-2"
+                onClick={() => navigate("/vendors")}
+              >
+                <Building2 className="h-6 w-6" />
+                <span>Vendors</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-24 flex-col gap-2"
+                onClick={() => navigate("/accounting")}
+              >
+                <BookOpen className="h-6 w-6" />
+                <span>Accounting</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-24 flex-col gap-2"
+                onClick={() => navigate("/gst-reports")}
+              >
+                <FileText className="h-6 w-6" />
+                <span>GST Reports</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-24 flex-col gap-2"
+                onClick={() => navigate("/quotations")}
+              >
+                <FileText className="h-6 w-6" />
+                <span>Quotations</span>
               </Button>
             </div>
           </CardContent>
