@@ -734,6 +734,122 @@ export type Database = {
         }
         Relationships: []
       }
+      purchase_order_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          po_id: string | null
+          product_id: string | null
+          product_name: string
+          quantity: number
+          received_quantity: number | null
+          tax_amount: number | null
+          tax_rate: number | null
+          total_amount: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          po_id?: string | null
+          product_id?: string | null
+          product_name: string
+          quantity: number
+          received_quantity?: number | null
+          tax_amount?: number | null
+          tax_rate?: number | null
+          total_amount: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          po_id?: string | null
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          received_quantity?: number | null
+          tax_amount?: number | null
+          tax_rate?: number | null
+          total_amount?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_order_items_po_id_fkey"
+            columns: ["po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_orders: {
+        Row: {
+          cgst_amount: number | null
+          created_at: string | null
+          created_by: string | null
+          expected_delivery: string | null
+          id: string
+          igst_amount: number | null
+          notes: string | null
+          po_date: string
+          po_number: string
+          sgst_amount: number | null
+          status: string | null
+          subtotal: number
+          total_amount: number
+          vendor_id: string | null
+        }
+        Insert: {
+          cgst_amount?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          expected_delivery?: string | null
+          id?: string
+          igst_amount?: number | null
+          notes?: string | null
+          po_date?: string
+          po_number: string
+          sgst_amount?: number | null
+          status?: string | null
+          subtotal?: number
+          total_amount?: number
+          vendor_id?: string | null
+        }
+        Update: {
+          cgst_amount?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          expected_delivery?: string | null
+          id?: string
+          igst_amount?: number | null
+          notes?: string | null
+          po_date?: string
+          po_number?: string
+          sgst_amount?: number | null
+          status?: string | null
+          subtotal?: number
+          total_amount?: number
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quotation_items: {
         Row: {
           cgst_rate: number | null

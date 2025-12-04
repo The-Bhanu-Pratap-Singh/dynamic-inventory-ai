@@ -20,6 +20,10 @@ import Vendors from "./pages/Vendors";
 import Accounting from "./pages/Accounting";
 import GSTReports from "./pages/GSTReports";
 import Quotations from "./pages/Quotations";
+import DeliveryChallans from "./pages/DeliveryChallans";
+import CreditDebitNotes from "./pages/CreditDebitNotes";
+import PaymentVouchers from "./pages/PaymentVouchers";
+import PurchaseOrders from "./pages/PurchaseOrders";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +52,10 @@ const App = () => (
           <Route path="/accounting" element={<Accounting />} />
           <Route path="/gst-reports" element={<GSTReports />} />
           <Route path="/quotations" element={<Quotations />} />
+          <Route path="/delivery-challans" element={<DeliveryChallans />} />
+          <Route path="/credit-debit-notes" element={<CreditDebitNotes />} />
+          <Route path="/payment-vouchers" element={<PaymentVouchers />} />
+          <Route path="/purchase-orders" element={<PurchaseOrders />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

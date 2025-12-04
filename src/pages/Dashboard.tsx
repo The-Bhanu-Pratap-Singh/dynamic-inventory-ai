@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, TrendingUp, AlertTriangle, DollarSign, Plus, LogOut, Brain, Shield, Users, Building2, BookOpen, Receipt, FileText } from "lucide-react";
+import { Package, TrendingUp, AlertTriangle, DollarSign, Plus, LogOut, Brain, Shield, Users, Building2, BookOpen, Receipt, FileText, Truck, Wallet, ShoppingCart, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DashboardStats {
@@ -291,6 +291,38 @@ const Dashboard = () => {
               >
                 <FileText className="h-6 w-6" />
                 <span>Quotations</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-24 flex-col gap-2"
+                onClick={() => navigate("/delivery-challans")}
+              >
+                <Truck className="h-6 w-6" />
+                <span>Delivery Challans</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-24 flex-col gap-2"
+                onClick={() => navigate("/credit-debit-notes")}
+              >
+                <CreditCard className="h-6 w-6" />
+                <span>Credit/Debit Notes</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-24 flex-col gap-2"
+                onClick={() => navigate("/payment-vouchers")}
+              >
+                <Wallet className="h-6 w-6" />
+                <span>Payment Vouchers</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-24 flex-col gap-2"
+                onClick={() => navigate("/purchase-orders")}
+              >
+                <ShoppingCart className="h-6 w-6" />
+                <span>Purchase Orders</span>
               </Button>
             </div>
           </CardContent>
