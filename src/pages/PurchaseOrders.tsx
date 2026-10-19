@@ -118,6 +118,18 @@ const PurchaseOrders = () => {
     },
   });
 
+  const recordBill = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("purchase_orders").update({ status: "received" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+      toast({ title: "Vendor bill recorded", description: "Stock added and accounts updated." });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
   const updateItem = (index: number, field: keyof POItem, value: string | number) => {
     const newItems = [...items];
     if (field === "product_id") {
@@ -258,13 +270,13 @@ const PurchaseOrders = () => {
                       <TableCell>{po.vendors?.name || "-"}</TableCell>
                       <TableCell>{po.expected_delivery ? format(new Date(po.expected_delivery), "dd/MM/yyyy") : "-"}</TableCell>
                       <TableCell className="text-right">₹{po.total_amount.toLocaleString()}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          po.status === "received" ? "bg-green-100 text-green-800" :
-                          po.status === "partial" ? "bg-blue-100 text-blue-800" :
-                          po.status === "approved" ? "bg-purple-100 text-purple-800" :
-                          "bg-yellow-100 text-yellow-800"
-                        }`}>{po.status}</span>
+                      <TableCell className="flex items-center gap-2">
+                        <span className="px-2 py-1 rounded-full text-xs bg-muted">{po.status}</span>
+                        {po.status !== "received" && (
+                          <Button size="sm" variant="outline" onClick={() => recordBill.mutate(po.id)} disabled={recordBill.isPending}>
+                            Record vendor bill
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
