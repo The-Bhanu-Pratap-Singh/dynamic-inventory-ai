@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Scanner from "@/components/Scanner";
 import { downloadInvoice, getInvoiceBase64 } from "@/lib/invoiceGenerator";
+import { fetchBusiness } from "@/lib/business";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface CartItem {
@@ -37,6 +38,7 @@ const POS = () => {
   const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
   const [invoiceEmail, setInvoiceEmail] = useState("");
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
+  const [lastInvoice, setLastInvoice] = useState<any>(null);
 
   useEffect(() => {
     loadProducts();
@@ -135,6 +137,25 @@ const POS = () => {
       }
 
       setLastOrderId(orderData.id);
+      setLastInvoice({
+        orderNumber: orderData.order_number,
+        customerName: customer.name || undefined,
+        customerPhone: customer.phone || undefined,
+        items: cart.map((i) => ({
+          product_name: i.productName,
+          quantity: i.quantity,
+          unit_price: i.unitPrice,
+          tax_rate: i.taxRate,
+          tax_amount: (i.unitPrice * i.quantity * i.taxRate) / 100,
+          total_amount: i.unitPrice * i.quantity * (1 + i.taxRate / 100),
+        })),
+        subtotal: totals.subtotal,
+        taxAmount: totals.taxAmount,
+        discount: totals.discountAmount,
+        totalAmount: totals.total,
+        paymentMethod,
+        date: orderData.created_at,
+      });
       setCart([]);
       setCustomer({ name: "", phone: "" });
       setDiscount(0);
@@ -224,7 +245,7 @@ const POS = () => {
         <DialogContent>
           <DialogHeader><DialogTitle>Order Completed</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <Button onClick={() => lastOrderId && downloadInvoice({ orderNumber: `ORD-${lastOrderId}`, items: [], subtotal: 0, taxAmount: 0, discount: 0, totalAmount: totals.total, date: new Date().toISOString() })} className="w-full">
+            <Button onClick={async () => lastInvoice && downloadInvoice({ ...lastInvoice, seller: await fetchBusiness() })} className="w-full">
               <Download className="h-4 w-4 mr-2" />Download PDF
             </Button>
           </div>
