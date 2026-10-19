@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -75,25 +76,16 @@ const Auth = () => {
 
       if (authError) throw authError;
 
-      if (authData.user) {
-        // Insert user role
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert([
-            {
-              user_id: authData.user.id,
-              role: role as "admin" | "store_manager" | "accountant" | "warehouse_staff",
-            },
-          ]);
-
-        if (roleError) throw roleError;
-
-        toast({
-          title: "Success",
-          description: "Account created successfully!",
-        });
-
+      if (authData.session) {
+        await supabase.from("user_roles").insert([
+          { user_id: authData.user!.id, role: role as "store_manager" | "accountant" | "warehouse_staff" },
+        ]);
         navigate("/dashboard");
+      } else {
+        toast({
+          title: "Check your email",
+          description: "We sent you a confirmation link. Click it, then sign in.",
+        });
       }
     } catch (error: any) {
       toast({
@@ -212,6 +204,22 @@ const Auth = () => {
               </form>
             </TabsContent>
           </Tabs>
+          <div className="my-4 flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="h-px flex-1 bg-border" /> OR <div className="h-px flex-1 bg-border" />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={async () => {
+              const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+              if (result.error) {
+                toast({ title: "Error", description: result.error.message, variant: "destructive" });
+              }
+            }}
+          >
+            Continue with Google
+          </Button>
         </CardContent>
       </Card>
     </div>
