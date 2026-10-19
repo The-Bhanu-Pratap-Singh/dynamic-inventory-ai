@@ -164,6 +164,30 @@ export type Database = {
           },
         ]
       }
+      custom_roles: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          permissions: string[]
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          permissions?: string[]
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          permissions?: string[]
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           address: string | null
@@ -1115,6 +1139,35 @@ export type Database = {
           },
         ]
       }
+      user_custom_roles: {
+        Row: {
+          created_at: string
+          custom_role_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_role_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_role_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_custom_roles_custom_role_id_fkey"
+            columns: ["custom_role_id"]
+            isOneToOne: false
+            referencedRelation: "custom_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1249,6 +1302,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      post_to_ledger: {
+        Args: { _amount: number; _name: string; _type: string }
+        Returns: undefined
       }
       remove_user_role: {
         Args: {
