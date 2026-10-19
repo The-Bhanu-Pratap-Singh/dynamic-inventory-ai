@@ -21,21 +21,27 @@ interface InvoiceData {
   totalAmount: number;
   paymentMethod?: string;
   date: string;
+  seller?: { name?: string; gstin?: string; address?: string; city?: string; state?: string; state_code?: string; phone?: string } | null;
 }
 
 export const generateInvoicePDF = (data: InvoiceData): jsPDF => {
   const doc = new jsPDF();
+  const s = data.seller;
   
   // Header
   doc.setFillColor(79, 70, 229); // Indigo
   doc.rect(0, 0, 210, 40, 'F');
   
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(24);
-  doc.text('INVOICE', 105, 20, { align: 'center' });
+  doc.setFontSize(20);
+  doc.text('TAX INVOICE', 105, 16, { align: 'center' });
   
   doc.setFontSize(12);
-  doc.text('Dynamic Product Intelligence', 105, 30, { align: 'center' });
+  doc.text(s?.name || 'Dynamic Product Intelligence', 105, 25, { align: 'center' });
+  doc.setFontSize(9);
+  doc.text(`GSTIN: ${s?.gstin || 'Not set'}${s?.state_code ? `  |  State code: ${s.state_code}` : ''}`, 105, 32, { align: 'center' });
+  const addr = [s?.address, s?.city, s?.state].filter(Boolean).join(', ');
+  if (addr) doc.text(addr.slice(0, 110), 105, 37, { align: 'center' });
   
   // Reset text color
   doc.setTextColor(0, 0, 0);
