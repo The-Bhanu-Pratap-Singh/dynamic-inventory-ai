@@ -211,7 +211,11 @@ const GSTReports = () => {
             </Button>
             <div>
               <h1 className="text-3xl font-bold text-foreground">GST Reports</h1>
-              <p className="text-muted-foreground">GSTR-1, GSTR-3B, and HSN summary reports</p>
+              <p className="text-muted-foreground">
+                {business?.gstin
+                  ? <>GSTIN <span className="font-mono font-medium text-foreground">{business.gstin}</span> · {business.name}</>
+                  : <>No GSTIN set yet — <button className="underline text-primary" onClick={() => navigate('/settings/business')}>add your business details</button></>}
+              </p>
             </div>
           </div>
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
