@@ -25,6 +25,9 @@ import CreditDebitNotes from "./pages/CreditDebitNotes";
 import PaymentVouchers from "./pages/PaymentVouchers";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import NotFound from "./pages/NotFound";
+import AdminLayout from "./components/AdminLayout";
+import CustomRoles from "./pages/CustomRoles";
+import BusinessSettings from "./pages/BusinessSettings";
 
 const queryClient = new QueryClient();
 
@@ -37,25 +40,29 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/products/new" element={<NewProduct />} />
-          <Route path="/products/bulk-import" element={<BulkImport />} />
-          <Route path="/products/:id" element={<ProductDetail />} />
-          <Route path="/ai-insights" element={<AIInsights />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/pos" element={<POS />} />
-          <Route path="/warehouse" element={<Warehouse />} />
-          <Route path="/roles" element={<RoleManagement />} />
-          <Route path="/customers" element={<Customers />} />
-          <Route path="/vendors" element={<Vendors />} />
-          <Route path="/accounting" element={<Accounting />} />
-          <Route path="/gst-reports" element={<GSTReports />} />
-          <Route path="/quotations" element={<Quotations />} />
-          <Route path="/delivery-challans" element={<DeliveryChallans />} />
-          <Route path="/credit-debit-notes" element={<CreditDebitNotes />} />
-          <Route path="/payment-vouchers" element={<PaymentVouchers />} />
-          <Route path="/purchase-orders" element={<PurchaseOrders />} />
+          <Route element={<AdminLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/products/new" element={<NewProduct />} />
+            <Route path="/products/bulk-import" element={<BulkImport />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
+            <Route path="/ai-insights" element={<AIInsights />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/pos" element={<POS />} />
+            <Route path="/warehouse" element={<Warehouse />} />
+            <Route path="/roles" element={<RoleManagement />} />
+            <Route path="/roles/custom" element={<CustomRoles />} />
+            <Route path="/settings/business" element={<BusinessSettings />} />
+            <Route path="/customers" element={<Customers />} />
+            <Route path="/vendors" element={<Vendors />} />
+            <Route path="/accounting" element={<Accounting />} />
+            <Route path="/gst-reports" element={<GSTReports />} />
+            <Route path="/quotations" element={<Quotations />} />
+            <Route path="/delivery-challans" element={<DeliveryChallans />} />
+            <Route path="/credit-debit-notes" element={<CreditDebitNotes />} />
+            <Route path="/payment-vouchers" element={<PaymentVouchers />} />
+            <Route path="/purchase-orders" element={<PurchaseOrders />} />
+          </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
