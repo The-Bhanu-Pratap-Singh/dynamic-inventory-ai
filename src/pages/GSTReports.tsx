@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { fetchBusiness, BusinessDetails } from '@/lib/business';
 import { ArrowLeft, Download, FileJson, FileSpreadsheet, Receipt } from 'lucide-react';
 
 interface SalesOrder {
@@ -36,6 +37,9 @@ const GSTReports = () => {
   const [hsnSummary, setHsnSummary] = useState<HSNSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+
+  const [business, setBusiness] = useState<BusinessDetails | null>(null);
+  useEffect(() => { fetchBusiness().then(setBusiness); }, []);
 
   useEffect(() => {
     loadData();
@@ -112,12 +116,12 @@ const GSTReports = () => {
 
   const exportGSTR1JSON = () => {
     const gstr1Data = {
-      gstin: "YOUR_GSTIN",
+      gstin: business?.gstin || "",
       fp: selectedMonth.replace('-', ''),
       b2b: [],
       b2cs: salesOrders.map(order => ({
         sply_ty: "INTRA",
-        pos: "27",
+        pos: business?.state_code || "",
         typ: "OE",
         txval: order.subtotal,
         camt: order.tax_amount / 2,
@@ -149,7 +153,7 @@ const GSTReports = () => {
 
   const exportGSTR3B = () => {
     const gstr3bData = {
-      gstin: "YOUR_GSTIN",
+      gstin: business?.gstin || "",
       ret_period: selectedMonth.replace('-', ''),
       "3.1": {
         "a": { txval: totalSales, camt: totalTax / 2, samt: totalTax / 2, iamt: 0 }
@@ -207,7 +211,11 @@ const GSTReports = () => {
             </Button>
             <div>
               <h1 className="text-3xl font-bold text-foreground">GST Reports</h1>
-              <p className="text-muted-foreground">GSTR-1, GSTR-3B, and HSN summary reports</p>
+              <p className="text-muted-foreground">
+                {business?.gstin
+                  ? <>GSTIN <span className="font-mono font-medium text-foreground">{business.gstin}</span> · {business.name}</>
+                  : <>No GSTIN set yet — <button className="underline text-primary" onClick={() => navigate('/settings/business')}>add your business details</button></>}
+              </p>
             </div>
           </div>
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
